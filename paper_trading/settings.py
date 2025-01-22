@@ -103,6 +103,7 @@ INSTALLED_APPS = [
     # custome created apps
     'core',
     'system_user',
+    'users'
 ]
 
 REST_FRAMEWORK = {
@@ -111,6 +112,11 @@ REST_FRAMEWORK = {
     ),
     'EXCEPTION_HANDLER': 'core.utils.exceptions.custom_exception_handler',
 }
+
+AUTHENTICATION_BACKENDS = [
+    'users.backends.CustomAuthBackend',  # Custom backend
+    'django.contrib.auth.backends.ModelBackend',  # Default backend (optional)
+]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',

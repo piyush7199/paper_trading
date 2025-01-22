@@ -34,6 +34,17 @@ class SystemUser(AbstractBaseUser, PermissionsMixin):
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['username']
 
+    groups = models.ManyToManyField(
+        'auth.Group',
+        related_name='system_user_groups', 
+        blank=True,
+    )
+    user_permissions = models.ManyToManyField(
+        'auth.Permission',
+        related_name='system_user_permissions',
+        blank=True,
+    )
+
     def __str__(self):
         return f"{self.email} ({self.username})"
 

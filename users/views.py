@@ -4,18 +4,25 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import authenticate
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from drf_yasg.utils import swagger_auto_schema
+from drf_yasg import openapi
 
 from .serializers import UserRegisterSerializer, UserLoginSerializer
 
 class UserRegisterView(views.APIView):
-    @swagger_auto_schema(request_body=UserRegisterSerializer)
+    @swagger_auto_schema(
+        request_body=UserRegisterSerializer,
+        responses={
+            201: UserRegisterSerializer,
+            400: "Invalid input data.",
+        }
+    )
     def post(self, request):
         serializer = UserRegisterSerializer(data=request.data)
         if serializer.is_valid():
-            serializer.save()
+            user = serializer.save()
             return Response({
                 "status": "success",
-                "message": "User registered successfully."
+                "user": UserRegisterSerializer(user).data
             }, status=status.HTTP_201_CREATED)
         return Response({
             "status": "error",
@@ -23,7 +30,14 @@ class UserRegisterView(views.APIView):
         }, status=status.HTTP_400_BAD_REQUEST)
 
 class UserLoginView(views.APIView):
-    @swagger_auto_schema(request_body=UserLoginSerializer)
+    @swagger_auto_schema(
+        request_body=UserLoginSerializer,
+        responses={
+            200: "Login successful. Returns access and refresh tokens.",
+            401: "Invalid credentials.",
+            400: "Invalid input data.",
+        }
+    )
     def post(self, request):
         serializer = UserLoginSerializer(data=request.data)
         if serializer.is_valid():
@@ -50,6 +64,37 @@ class UserLoginView(views.APIView):
         }, status=status.HTTP_400_BAD_REQUEST)
 
 class UserRefreshTokenView(views.APIView):
+    @swagger_auto_schema(
+        request_body=openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            properties={
+                'refresh_token': openapi.Schema(type=openapi.TYPE_STRING),
+            },
+            required=['refresh_token']
+        ),
+        responses={
+            200: openapi.Response(
+                description="New access token generated.",
+                schema=openapi.Schema(
+                    type=openapi.TYPE_OBJECT,
+                    properties={
+                        'status': openapi.Schema(type=openapi.TYPE_STRING),
+                        'access_token': openapi.Schema(type=openapi.TYPE_STRING),
+                    }
+                )
+            ),
+            400: openapi.Response(
+                description="Invalid refresh token.",
+                schema=openapi.Schema(
+                    type=openapi.TYPE_OBJECT,
+                    properties={
+                        'status': openapi.Schema(type=openapi.TYPE_STRING),
+                        'error': openapi.Schema(type=openapi.TYPE_STRING),
+                    }
+                )
+            ),
+        }
+    )
     def post(self, request):
         refresh_token = request.data.get('refresh_token')
         if not refresh_token:

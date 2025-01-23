@@ -22,10 +22,10 @@ LOGGING = {
         },
     },
     'handlers': {
-        'customer_file': {
+        'users_file': {
             'level': 'INFO',
             'class': 'logging.handlers.RotatingFileHandler',
-            'filename': os.path.join(BASE_DIR, 'logs/customer.log'),
+            'filename': os.path.join(BASE_DIR, 'logs/users.log'),
             'maxBytes': 1024 * 1024 * 5, 
             'backupCount': 5,  
             'formatter': 'verbose',
@@ -46,17 +46,15 @@ LOGGING = {
             'backupCount': 5, 
             'formatter': 'verbose',
         },
-
         'console': {
-            'level': 'DEBUG',
+            'level': 'DEBUG',  # Set to DEBUG to capture debug information
             'class': 'logging.StreamHandler',
             'formatter': 'simple',
         },
     },
     'loggers': {
-       
-        'customer': {
-            'handlers': ['customer_file', 'console'],
+        'users': {
+            'handlers': ['users_file', 'console'],
             'level': 'INFO',
             'propagate': False,  
         },
@@ -69,6 +67,10 @@ LOGGING = {
             'handlers': ['system_user_file', 'console'],
             'level': 'INFO',
             'propagate': False,
+        },
+        '': { 
+            'handlers': ['console'],
+            'level': 'DEBUG',  # Set to DEBUG to capture debug information
         },
     },
 }
@@ -103,19 +105,24 @@ INSTALLED_APPS = [
     # custome created apps
     'core',
     'system_user',
-    'users'
+    'users',
+    'accounts',
+    'transactions',
 ]
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.IsAuthenticated',
+    ),
     'EXCEPTION_HANDLER': 'core.utils.exceptions.custom_exception_handler',
 }
 
 AUTHENTICATION_BACKENDS = [
-    'users.backends.CustomAuthBackend',  # Custom backend
-    'django.contrib.auth.backends.ModelBackend',  # Default backend (optional)
+    'users.backends.CustomAuthBackend',  
+    'django.contrib.auth.backends.ModelBackend',
 ]
 
 MIDDLEWARE = [

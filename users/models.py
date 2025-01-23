@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
+from django.apps import apps
 from core.utils.app_contants import default_created_on
 
 class UserManager(BaseUserManager):
@@ -43,6 +44,11 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     def __str__(self):
         return self.email
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        Account = apps.get_model('accounts', 'Account')
+        Account.objects.get_or_create(user=self)
 
     class Meta:
         db_table = 'users'

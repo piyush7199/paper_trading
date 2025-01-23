@@ -17,7 +17,8 @@ schema_view = get_schema_view(
     permission_classes=(permissions.AllowAny,),
     patterns=[  
         path('api/users/', include('users.urls')),
-        # Add other app URLs here (e.g., stock, account, etc.)
+        path('api/account/', include('accounts.urls')),
+        # Add transactions URLs path('api/transactions/', include('transactions.urls')),  # Add transactions URLs
     ],
 )
 
@@ -30,4 +31,6 @@ urlpatterns = [
     re_path(r'^redoc/$', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
 
     path('api/users/', include('users.urls')),
+    path('api/account/', include('accounts.urls')),
+   # Add transactions URLs path('api/transactions/', include('transactions.urls')),  
 ]
